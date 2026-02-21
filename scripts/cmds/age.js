@@ -1,73 +1,117 @@
-const axios = require("axios");
-
-const mahmud = async () => {
-        const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/exe/main/baseApiUrl.json");
-        return base.data.mahmud;
-};
+const moment = require("moment-timezone");
 
 module.exports = {
-        config: {
-                name: "age",
-                aliases: ["বয়স"],
-                version: "1.7",
-                author: "MahMUD",
-                countDown: 5,
-                role: 0,
-                description: {
-                        bn: "আপনার জন্ম তারিখ দিয়ে বর্তমান বয়স ক্যালকুলেট করুন",
-                        en: "Calculate your current age using date of birth",
-                        vi: "Tính tuổi hiện tại của bạn bằng ngày sinh"
-                },
-                category: "Utility",
-                guide: {
-                        bn: '   {pn} <YYYY-MM-DD>: (যেমন: {pn} 2002-05-15)',
-                        en: '   {pn} <YYYY-MM-DD>: (Ex: {pn} 2002-05-15)',
-                        vi: '   {pn} <YYYY-MM-DD>: (VD: {pn} 2002-05-15)'
-                }
-        },
+  config: {
+    name: "age",
+    aliases: ["myage"],
+    version: "6.0",
+    author: "𝐌𝐨𝐡𝐚ᴍᴍᴀᴅ 𝐀ᴋᴀsʜ",
+    role: 0,
+    category: "AI",
+    guide: "age <YYYY | DD/MM/YYYY | D Month YYYY | D/Month/YYYY>",
+    countDown: 5
+  },
 
-        langs: {
-                bn: {
-                        noInput: "× বেবি, তোমার জন্ম তারিখ দাও!\n\nউদাহরণ: {pn} 2002-05-15",
-                        error: "× সমস্যা হয়েছে: %1। প্রয়োজনে Contact Kakashi।"
-                },
-                en: {
-                        noInput: "× Baby, please provide your date of birth\n\nExample: {pn} 2002-05-15",
-                        error: "× API error: %1. Contact Kakashi for help."
-                },
-                vi: {
-                        noInput: "× Cưng ơi, vui lòng cung cấp ngày sinh\n\nVí dụ: {pn} 2002-05-15",
-                        error: "× Lỗi: %1. Liên hệ Kakashi để hỗ trợ."
-                }
-        },
+  onStart: async function ({ api, event, args }) {
+    try {
+      if (!args.length) {
+        return api.sendMessage(
+          "⚠️ Uꜱᴇ:\n• age 2007\n• age 01/05/2007\n• age 3 May 2007\n• age 3/may/2007",
+          event.threadID
+        );
+      }
 
-        onStart: async function ({ api, event, args, message, getLang }) {
-                const authorName = String.fromCharCode(77, 97, 104, 77, 85, 68);
-                if (this.config.author !== authorName) {
-                        return api.sendMessage("You are not authorized to change the author name.", event.threadID, event.messageID);
-                }
+      let input = args.join(" ").trim();
+      let day, month, year;
 
-                const dob = args[0];
-                if (!dob) return message.reply(getLang("noInput"));
+      const monthMap = {
+        jan:1,january:1,feb:2,february:2,mar:3,march:3,
+        apr:4,april:4,may:5,jun:6,june:6,
+        jul:7,july:7,aug:8,august:8,
+        sep:9,september:9,oct:10,october:10,
+        nov:11,november:11,dec:12,december:12
+      };
 
-                try {
-                        api.setMessageReaction("⏳", event.messageID, () => {}, true);
-                        
-                        const apiBase = await mahmud();
-                        const res = await axios.get(`${apiBase}/api/age/font3?dob=${dob}`);
+      // YYYY
+      if (/^\d{4}$/.test(input)) {
+        day = 1; month = 1; year = Number(input);
+      }
 
-                        if (res.data && res.data.error) {
-                                return message.reply(res.data.error);
-                        }
+      // DD/MM/YYYY
+      else if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(input)) {
+        const p = input.split("/");
+        day = +p[0];
+        month = +p[1];
+        year = +p[2];
+        if (year < 100) year += 2000;
+      }
 
-                        api.setMessageReaction("✅", event.messageID, () => {}, true);
-                        return message.reply(res.data.message);
+      // 3 May 2007
+      else if (/^\d{1,2}\s+[a-zA-Z]{3,9}\s+\d{4}$/.test(input)) {
+        const p = input.split(" ");
+        day = +p[0];
+        month = monthMap[p[1].toLowerCase()];
+        year = +p[2];
+      }
 
-                } catch (err) {
-                        console.error("Age Error:", err);
-                        api.setMessageReaction("❌", event.messageID, () => {}, true);
-                        const errorMsg = err.response?.data?.error || err.message;
-                        return message.reply(getLang("error", errorMsg));
-                }
-        }
+      // 3/May/2007
+      else if (/^\d{1,2}\/[a-zA-Z]{3,9}\/\d{4}$/.test(input)) {
+        const p = input.split("/");
+        day = +p[0];
+        month = monthMap[p[1].toLowerCase()];
+        year = +p[2];
+      }
+
+      else {
+        return api.sendMessage(
+          "❌ Fᴏʀᴍᴀᴛ ভুল\n✔ age 2007\n✔ age 01/05/2007\n✔ age 3 May 2007\n✔ age 3/may/2007",
+          event.threadID
+        );
+      }
+
+      if (!day || !month || !year) {
+        return api.sendMessage("❌ Dᴀᴛᴇ পাʀsᴇ হʏ নɪ", event.threadID);
+      }
+
+      const birth = moment.tz(
+        `${year}-${month}-${day}`,
+        "YYYY-MM-DD",
+        "Asia/Dhaka"
+      );
+
+      if (!birth.isValid()) {
+        return api.sendMessage("❌ Iɴᴠᴀʟɪᴅ Dᴀᴛᴇ", event.threadID);
+      }
+
+      const now = moment.tz("Asia/Dhaka");
+      const d = moment.duration(now.diff(birth));
+
+      const y = d.years();
+      const m = d.months();
+      const dy = d.days();
+
+      const totalMonths = y * 12 + m;
+      const totalDays = Math.floor(d.asDays());
+      const totalHours = Math.floor(d.asHours());
+
+      const msg = `━━━━━━━━━━━━━━
+🎂 Sᴍᴀʀᴛ Aɢᴇ Cᴏᴜɴᴛ🎂
+━━━━━━━━━━━━━━
+
+📅 Bɪʀᴛʜᴅᴀʏ: ${String(day).padStart(2,"0")}/${String(month).padStart(2,"0")}/${year}
+🕒 Aɢᴇ: ${y} Yᴇᴀʀs ${m} Mᴏɴᴛʜs ${dy} Dᴀʏs
+
+📌 Tᴏᴛᴀʟ:
+➤ ${totalMonths} Mᴏɴᴛʜs
+➤ ${totalDays} Dᴀʏs
+➤ ${totalHours} Hᴏᴜʀs
+━━━━━━━━━━━━━━`;
+
+      return api.sendMessage(msg, event.threadID);
+
+    } catch (e) {
+      console.error(e);
+      return api.sendMessage("❌ Eʀʀᴏʀ", event.threadID);
+    }
+  }
 };
