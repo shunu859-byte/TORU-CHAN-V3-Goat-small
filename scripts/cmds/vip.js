@@ -2,84 +2,131 @@ const { config } = global.GoatBot;
 const { writeFileSync } = require("fs-extra");
 
 module.exports = {
-        config: {
-                name: "vip",
-                version: "1.7",
-                author: "MahMUD",
-                countDown: 5,
-                role: 2,
-                description: {
-                        bn: "VIP ইউজার যোগ, অপসারণ বা তালিকা দেখুন",
-                        en: "Add, remove, or list VIP users"
-                },
-                category: "System",
-                guide: { bn: '{pn} add/remove/list [ID/@tag]', en: '{pn} add/remove/list [ID/@tag]' }
-        },
+  config: {
+    name: "vip",
+    version: "1.1",
+    author: "NTKhang | Saimx69x",
+    countDown: 5,
+    role: 0,
+    description: {
+      vi: "Thêm, xóa, sửa quyền VIP",
+      en: "Add, remove, edit VIP role"
+    },
+    category: "Admin",
+    guide: {
+      vi: '   {pn} [add | -a] <uid | @tag>: Thêm quyền VIP cho người dùng'
+        + '\n   {pn} [remove | -r] <uid | @tag>: Xóa quyền VIP của người dùng'
+        + '\n   {pn} [list | -l]: Liệt kê danh sách VIP',
+      en: '   {pn} [add | -a] <uid | @tag>: Add VIP role for user'
+        + '\n   {pn} [remove | -r] <uid | @tag>: Remove VIP role of user'
+        + '\n   {pn} [list | -l]: List all VIP users'
+    }
+  },
 
-        langs: {
-                bn: {
-                        added: "🌟 | সফলভাবে %1 জনকে VIP রোল দেওয়া হয়েছে:\n%2",
-                        already: "\n⚠️ | %1 জন আগে থেকেই VIP ছিল:\n%2",
-                        missingAdd: "⚠️ | বেবি, VIP করতে আইডি দিন অথবা ট্যাগ করুন!",
-                        removed: "🚫 | সফলভাবে %1 জনের VIP রোল সরানো হয়েছে:\n%2",
-                        notIn: "⚠️ | %1 জন VIP তালিকায় ছিল না:\n%2",
-                        list: "🌟 | VIP ইউজার তালিকা:\n\n%1"
-                },
-                en: {
-                        added: "🌟 | Added VIP role for %1 users:\n%2",
-                        already: "\n⚠️ | %1 users already have VIP role:\n%2",
-                        missingAdd: "⚠️ | Provide ID or tag to add VIP!",
-                        removed: "🚫 | Removed VIP role for %1 users:\n%2",
-                        notIn: "⚠️ | %1 users were not in VIP list:\n%2",
-                        list: "🌟 | VIP Users List:\n\n%1"
-                }
-        },
+  langs: {
+    vi: {
+      added: "✅ | Đã thêm quyền VIP cho %1 người dùng:\n%2",
+      alreadyVip: "\n⚠️ | %1 người dùng đã có quyền VIP từ trước rồi:\n%2",
+      missingIdAdd: "⚠️ | Vui lòng nhập ID hoặc tag người dùng muốn thêm quyền VIP",
+      removed: "✅ | Đã xóa quyền VIP của %1 người dùng:\n%2",
+      notVip: "⚠️ | %1 người dùng không có quyền VIP:\n%2",
+      missingIdRemove: "⚠️ | Vui lòng nhập ID hoặc tag người dùng muốn xóa quyền VIP",
+      listVip: "💎 | Danh sách VIP:\n%1"
+    },
+    en: {
+      added: "✅ | Added VIP role for %1 users:\n%2",
+      alreadyVip: "\n⚠️ | %1 users already have VIP role:\n%2",
+      missingIdAdd: "⚠️ | Please enter ID or tag user to add VIP role",
+      removed: "✅ | Removed VIP role of %1 users:\n%2",
+      notVip: "⚠️ | %1 users don't have VIP role:\n%2",
+      missingIdRemove: "⚠️ | Please enter ID or tag user to remove VIP role",
+      listVip: "💎 | List of VIPs:\n%1"
+    }
+  },
 
-        onStart: async function ({ api, message, args, usersData, event, getLang }) {
-                const action = args[0]?.toLowerCase();
-                const { threadID, messageID } = event;
-                if (!config.vipUser) config.vipUser = [];
+  onStart: async function ({ message, args, usersData, event, getLang, role }) {
+    switch (args[0]) {
+      case "add":
+      case "-a": {
+    
+        if (role < 3) return message.reply("⚠️ | You don't have permission to add VIPs.");
 
-                switch (action) {
-                        case "add": {
-                                if (args[1] || event.messageReply) {
-                                        let uids = Object.keys(event.mentions).length > 0 ? Object.keys(event.mentions) : 
-                                                   event.messageReply ? [event.messageReply.senderID] : args.filter(arg => !isNaN(arg));
+        if (args[1]) {
+          let uids = [];
+          if (Object.keys(event.mentions).length > 0)
+            uids = Object.keys(event.mentions);
+          else if (event.messageReply)
+            uids.push(event.messageReply.senderID);
+          else
+            uids = args.filter(arg => !isNaN(arg));
 
-                                        const notInIds = [], inIds = [];
-                                        for (const uid of uids) config.vipUser.includes(uid) ? inIds.push(uid) : notInIds.push(uid);
+          const notVipIds = [];
+          const vipIds = [];
+          for (const uid of uids) {
+            if (config.vipuser.includes(uid))
+              vipIds.push(uid);
+            else
+              notVipIds.push(uid);
+          }
 
-                                        config.vipUser.push(...notInIds);
-                                        const getNames = await Promise.all(uids.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
-                                        writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
-
-                                        const response = (notInIds.length > 0 ? getLang("added", notInIds.length, getNames.filter(u => notInIds.includes(u.uid)).map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
-                                                + (inIds.length > 0 ? getLang("already", inIds.length, getNames.filter(u => inIds.includes(u.uid)).map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "");
-                                        return api.sendMessage(response, threadID, messageID);
-                                } else return api.sendMessage(getLang("missingAdd"), threadID, messageID);
-                        }
-                        case "remove": {
-                                if (args[1] || event.messageReply) {
-                                        let uids = Object.keys(event.mentions).length > 0 ? Object.keys(event.mentions) : 
-                                                   event.messageReply ? [event.messageReply.senderID] : args.filter(arg => !isNaN(arg));
-
-                                        const inIds = [], notInIds = [];
-                                        for (const uid of uids) config.vipUser.includes(uid) ? inIds.push(uid) : notInIds.push(uid);
-
-                                        for (const uid of inIds) config.vipUser.splice(config.vipUser.indexOf(uid), 1);
-                                        const getNames = await Promise.all(uids.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
-                                        writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
-
-                                        const response = (inIds.length > 0 ? getLang("removed", inIds.length, getNames.filter(u => inIds.includes(u.uid)).map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
-                                                + (notInIds.length > 0 ? getLang("notIn", notInIds.length, getNames.filter(u => notInIds.includes(u.uid)).map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "");
-                                        return api.sendMessage(response, threadID, messageID);
-                                } else return api.sendMessage(getLang("missingAdd"), threadID, messageID);
-                        }
-                        case "list": {
-                                const getNames = await Promise.all(config.vipUser.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
-                                return api.sendMessage(getLang("list", getNames.map(({ uid, name }) => `• ${name}\n  └ ID: ${uid}`).join("\n\n")), threadID, messageID);
-                        }
-                        default: return message.SyntaxError();
-                }
+          config.vipuser.push(...notVipIds);
+          const getNames = await Promise.all(uids.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+          writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
+          return message.reply(
+            (notVipIds.length > 0 ? getLang("added", notVipIds.length, getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
+            + (vipIds.length > 0 ? getLang("alreadyVip", vipIds.length, vipIds.map(uid => `• ${uid}`).join("\n")) : "")
+          );
         }
+        else
+          return message.reply(getLang("missingIdAdd"));
+      }
+
+      case "remove":
+      case "-r": {
+        
+        if (role < 3) return message.reply("⚠️ | You don't have permission to remove VIPs.");
+
+        if (args[1]) {
+          let uids = [];
+          if (Object.keys(event.mentions).length > 0)
+            uids = Object.keys(event.mentions);
+          else
+            uids = args.filter(arg => !isNaN(arg));
+
+          const notVipIds = [];
+          const vipIds = [];
+          for (const uid of uids) {
+            if (config.vipuser.includes(uid))
+              vipIds.push(uid);
+            else
+              notVipIds.push(uid);
+          }
+
+          for (const uid of vipIds)
+            config.vipuser.splice(config.vipuser.indexOf(uid), 1);
+
+          const getNames = await Promise.all(vipIds.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+          writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
+          return message.reply(
+            (vipIds.length > 0 ? getLang("removed", vipIds.length, getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
+            + (notVipIds.length > 0 ? getLang("notVip", notVipIds.length, notVipIds.map(uid => `• ${uid}`).join("\n")) : "")
+          );
+        }
+        else
+          return message.reply(getLang("missingIdRemove"));
+      }
+
+      case "list":
+      case "-l": {
+    
+        if (config.vipuser.length === 0)
+          return message.reply("⚠️ | No VIP users found");
+        const getNames = await Promise.all(config.vipuser.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+        return message.reply(getLang("listVip", getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")));
+      }
+
+      default:
+        return message.SyntaxError();
+    }
+  }
 };
