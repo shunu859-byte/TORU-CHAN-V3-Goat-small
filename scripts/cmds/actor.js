@@ -1,4 +1,5 @@
 const axios = require("axios");
+const money = require("../../utils/money"); // ⚠️ path ঠিক করবি
 
 const baseApiUrl = async () => {
   const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json");
@@ -33,18 +34,26 @@ module.exports = {
     const getCoin = 500;
     const getExp = 121;
 
-    const userData = await usersData.get(event.senderID);
     if (event.senderID !== author) {
-    return api.sendMessage("❌ This is not your question!", event.threadID, event.messageID);
+      return api.sendMessage("❌ This is not your question!", event.threadID, event.messageID);
     }
 
     const reply = event.body.toLowerCase();
     await api.unsendMessage(Reply.messageID);
+
     const isCorrect = actorNames.some(name => reply.includes(name.toLowerCase()));
+
     if (isCorrect) {
-      userData.money += getCoin;
-      userData.exp += getExp;
-      await usersData.set(event.senderID, userData);
+      // ✅ money.js দিয়ে টাকা add
+      money.add(event.senderID, getCoin);
+
+      // exp আগের মতো usersData তেই থাকবে
+      const userData = await usersData.get(event.senderID);
+      await usersData.set(event.senderID, {
+        money: userData.money, // money এখন money.js handle করবে
+        exp: userData.exp + getExp,
+        data: userData.data
+      });
 
       return api.sendMessage(
         `✅ Correct answer baby!\nYou earned ${getCoin} coins & ${getExp} exp.`,
@@ -97,7 +106,7 @@ module.exports = {
 
     } catch (err) {
       console.error("ActorGame Error:", err.message);
-      return api.sendMessage(`🥹error, contact MahMUD`, event.threadID, event.messageID);
+      return api.sendMessage(`🥹error, contact Kakashi`, event.threadID, event.messageID);
     }
   }
 };

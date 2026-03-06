@@ -1,4 +1,5 @@
 const axios = require("axios");
+const money = require("../../utils/money"); // ⚠️ path ঠিক করবি
 
 const baseApiUrl = async () => {
   const base = await axios.get("https://raw.githubusercontent.com/mahmudx7/HINATA/main/baseApiUrl.json");
@@ -12,16 +13,14 @@ const baseApiUrl = async () => {
 
 module.exports = {
   config: {
-    name: "cricketgame",
+    name: "cricket",
     aliases: ["cricket"],
     version: "1.7",
     author: "MahMUD",
     countDown: 10,
     role: 0,
     category: "Game",
-    guide: {
-      en: "{pn}"
-    }
+    guide: { en: "{pn}" }
   },
 
   onReply: async function ({ api, event, Reply, usersData }) {
@@ -35,25 +34,26 @@ module.exports = {
 
     const reply = event.body.trim().toLowerCase();
     const isCorrect = cricketNames.some(name => name.toLowerCase() === reply);
-    const userData = await usersData.get(event.senderID);
 
     await api.unsendMessage(messageID);
 
     if (isCorrect) {
-      try {
-        await usersData.set(event.senderID, {
-          money: userData.money + getCoin,
-          exp: userData.exp + getExp
-        });
+      // ✅ money.js দিয়ে coin add
+      money.add(event.senderID, getCoin);
 
-        return api.sendMessage(
-          `✅ | Correct answer baby.\nYou have earned ${getCoin} coins and ${getExp} exp.`,
-          event.threadID,
-          event.messageID
-        );
-      } catch (err) {
-        console.log("Error: ", err.message);
-      }
+      // exp usersData তেই থাকবে
+      const userData = await usersData.get(event.senderID);
+      await usersData.set(event.senderID, {
+        money: userData.money, // money এখন money.js handle করবে
+        exp: userData.exp + getExp,
+        data: userData.data
+      });
+
+      return api.sendMessage(
+        `✅ | Correct answer baby.\nYou have earned ${getCoin} coins and ${getExp} exp.`,
+        event.threadID,
+        event.messageID
+      );
     } else {
       return api.sendMessage(
         `❌ | Wrong answer baby.\nCorrect answer was: ${cricketNames.join(" / ")}`,
@@ -63,7 +63,7 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ api, event, usersData }) {
+  onStart: async function ({ api, event }) {
     const obfuscatedAuthor = String.fromCharCode(77, 97, 104, 77, 85, 68);
     if (module.exports.config.author !== obfuscatedAuthor) {
       return api.sendMessage(
@@ -83,7 +83,7 @@ module.exports = {
         url: imgurLink,
         method: "GET",
         responseType: "stream",
-        headers: { 'User-Agent': 'Mozilla/5.0' }
+        headers: { "User-Agent": "Mozilla/5.0" }
       });
 
       api.sendMessage(
@@ -102,9 +102,7 @@ module.exports = {
             cricketNames
           });
 
-          setTimeout(() => {
-            api.unsendMessage(info.messageID);
-          }, 40000);
+          setTimeout(() => api.unsendMessage(info.messageID), 40000);
         },
         event.messageID
       );
