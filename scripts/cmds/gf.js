@@ -7,7 +7,7 @@ module.exports = {
     author: "Hridoy",
     role: 0,
     shortDescription: "Random GF image/video",
-    category: "Fun",
+    category: "Image",
     guide: "{pn}",
     cooldown: 5
   },
