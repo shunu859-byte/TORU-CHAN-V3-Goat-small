@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "girl",
-    version: "1.0.0",
+    version: "1.0.1",
     author: "Hridoy",
     role: 0,
     shortDescription: "Random GF image/video",
@@ -15,7 +15,7 @@ module.exports = {
   onStart: async function ({ api, event }) {
 
     const links = [
-      "https://i.postimg.cc/658TJQbT/004aab23822f4d71143e8.jpg",
+  "https://i.postimg.cc/658TJQbT/004aab23822f4d71143e8.jpg",
 "https://i.postimg.cc/ht44rtF2/0mCTvKZ.jpg",
 "https://i.postimg.cc/sDthXWbt/119a05a0aa1766493f0627.jpg",
 "https://i.postimg.cc/W17B5GmZ/172775346-123918253252068-2102626980051622383-n.jpg",
@@ -626,13 +626,12 @@ module.exports = {
 "https://i.postimg.cc/nzGqLVpn/eb430a2cea192f4776086.jpg",
 "https://i.postimg.cc/Dz2vT7jr/36244415a520607e393112.jpg",
 "https://i.postimg.cc/Zn1Yt32n/91de34ebd5de108049cf13.jpg"
-]
-    ];
+];
 
-    try {
+try {
       const randomLink = links[Math.floor(Math.random() * links.length)];
 
-      // 🔥 direct stream (image + video both support)
+      // 🔥 stream support (image/video both)
       const stream = await global.utils.getStreamFromURL(randomLink);
 
       return api.sendMessage({
@@ -642,7 +641,11 @@ module.exports = {
 
     } catch (err) {
       console.error(err);
-      return api.sendMessage("⚠️ GF aste aste chole ashtese... abar try koro 😅", event.threadID, event.messageID);
+      return api.sendMessage(
+        "⚠️ GF aste aste chole ashtese... abar try koro 😅",
+        event.threadID,
+        event.messageID
+      );
     }
   }
 };
