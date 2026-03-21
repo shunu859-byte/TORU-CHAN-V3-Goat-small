@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "cuteayka",
-    version: "2.0.0",
+    version: "4.0.0",
     author: "Hridoy",
     role: 0,
     shortDescription: "Random Ayaka image",
@@ -14,10 +14,13 @@ module.exports = {
     cooldown: 5
   },
 
-  onStart: async function ({ api, event, usersData }) {
+  onStart: async function ({ api, event }) {
 
-    const link = [
-           "https://i.imgur.com/uXWLBeC.jpeg",
+    const links = [
+      "https://i.imgur.com/ExdKOOz.png",
+      "https://i.imgur.com/ZF6s192.jpeg",
+      "https://i.imgur.com/3GvwNBf.jpeg",
+      "https://i.imgur.com/uXWLBeC.jpeg",
      "https://i.imgur.com/7Dc9GrN.jpeg",
      "https://i.imgur.com/IaAVMFK.jpeg",
      "https://i.imgur.com/WceNH2z.jpeg",
@@ -120,56 +123,46 @@ module.exports = {
            "https://i.imgur.com/OvAjaUQ.jpeg",
            "https://i.imgur.com/CW4Id3o.jpeg",
            "https://i.imgur.com/5SWTCJ4.jpeg",
-      
-      // চাইলে পুরো লিস্ট রাখো
     ];
 
+    const cacheDir = path.join(__dirname, "cache");
+    await fs.ensureDir(cacheDir);
+
+    const filePath = path.join(cacheDir, `ayaka_${Date.now()}.jpg`);
+
     try {
+      let imgUrl;
 
-      // GoatBot money system
-      const userData = await usersData.get(event.senderID);
-      const money = userData.money || 0;
-
-      if (money < 100) {
-        return api.sendMessage(
-          "💵 You need $100 to see the photo!",
-          event.threadID,
-          event.messageID
-        );
+      // 🔥 1st priority: API (always works)
+      try {
+        const apiRes = await axios.get("https://api.waifu.pics/sfw/waifu");
+        imgUrl = apiRes.data.url;
+      } catch {
+        // 🔥 fallback: random link
+        imgUrl = links[Math.floor(Math.random() * links.length)];
       }
 
-      await usersData.set(event.senderID, {
-        money: money - 100
+      // 🔥 download image
+      const res = await axios.get(imgUrl, {
+        responseType: "arraybuffer",
+        timeout: 15000
       });
 
-      const imgUrl = link[Math.floor(Math.random() * link.length)];
+      fs.writeFileSync(filePath, Buffer.from(res.data));
 
-      const cachePath = path.join(__dirname, "cache", `ayaka_${Date.now()}.jpg`);
-      await fs.ensureDir(path.dirname(cachePath));
-
-      const response = await axios({
-        url: imgUrl,
-        method: "GET",
-        responseType: "stream"
-      });
-
-      const writer = fs.createWriteStream(cachePath);
-      response.data.pipe(writer);
-
-      writer.on("finish", () => {
-        api.sendMessage({
-          body: "🌸 Ayaka Photo 💞\n-100$ deducted!",
-          attachment: fs.createReadStream(cachePath)
-        }, event.threadID, () => fs.unlinkSync(cachePath), event.messageID);
-      });
-
-      writer.on("error", () => {
-        api.sendMessage("❌ Image download failed", event.threadID);
-      });
+      await api.sendMessage({
+        body: "🌸 Ayaka Photo 💞",
+        attachment: fs.createReadStream(filePath)
+      }, event.threadID, () => fs.unlinkSync(filePath), event.messageID);
 
     } catch (err) {
-      console.error(err);
-      api.sendMessage("⚠️ Something went wrong!", event.threadID, event.messageID);
+      console.error("FINAL ERROR:", err);
+
+      // 🔥 LAST fallback (never fails)
+      return api.sendMessage({
+        body: "🌸 Ayaka Photo 💞",
+        attachment: await global.utils.getStreamFromURL("https://picsum.photos/500")
+      }, event.threadID, event.messageID);
     }
   }
 };
