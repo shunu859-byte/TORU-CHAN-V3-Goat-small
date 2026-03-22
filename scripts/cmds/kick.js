@@ -5,7 +5,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "kick",
-    version: "1.0.1",
+    version: "1.0.2",
     hasPermssion: 0,
     credits: "Hridoy",
     description: "Kick the tagged friend",
@@ -23,10 +23,10 @@ module.exports = {
       const mentionID = Object.keys(event.mentions)[0];
       const tagName = event.mentions[mentionID].replace("@", "");
 
-      // Kick GIF links
+      // Kick GIF links (fixed commas)
       const gifs = [
         "https://i.imgur.com/0kL1jqP.gif",
-        "https://i.imgur.com/HPzBl6x.gif".
+        "https://i.imgur.com/HPzBl6x.gif",
         "https://i.postimg.cc/65TSxJYD/2ce5a017f6556ff103bce87b273b89b7.gif",
         "https://i.postimg.cc/65SP9jPT/Anime-083428-6224795.gif",
         "https://i.postimg.cc/RFXP2XfS/jXOwoHx.gif",
@@ -39,7 +39,7 @@ module.exports = {
       const cacheDir = path.join(__dirname, "cache");
       if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 
-      const gifPath = path.join(cacheDir, "kick.gif");
+      const gifPath = path.join(cacheDir, `kick_${Date.now()}.gif`);
 
       // Download GIF
       const response = await axios({ url: randomGif, method: "GET", responseType: "stream" });
@@ -64,7 +64,7 @@ module.exports = {
       });
 
     } catch (err) {
-      console.error(err);
+      console.error("Kick Command Error:", err);
       api.sendMessage("❌ An unexpected error occurred.", event.threadID, event.messageID);
     }
   }
