@@ -73,6 +73,7 @@ module.exports = {
       "https://i.imgur.com/lFrFMEn.gif",
       "https://i.imgur.com/KbcCZv2.gif",
       "https://i.imgur.com/QC7AfxQ.gif",
+      "https://i.imgur.com/KrEez4A.gif",
       "https://i.imgur.com/TtAOEAO.gif",
       "https://i.imgur.com/mW0yjZb.gif",
       "https://i.imgur.com/KQBcxOV.gif"
