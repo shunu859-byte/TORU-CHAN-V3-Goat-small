@@ -26,7 +26,7 @@ module.exports = {
       // Kick GIF links
       const gifs = [
         "https://i.imgur.com/0kL1jqP.gif",
-        "https://i.imgur.com/HPzBl6x.gif,
+        "https://i.imgur.com/HPzBl6x.gif".
         "https://i.postimg.cc/65TSxJYD/2ce5a017f6556ff103bce87b273b89b7.gif",
         "https://i.postimg.cc/65SP9jPT/Anime-083428-6224795.gif",
         "https://i.postimg.cc/RFXP2XfS/jXOwoHx.gif",
