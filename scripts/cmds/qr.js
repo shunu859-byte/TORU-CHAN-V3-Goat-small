@@ -12,7 +12,7 @@ function extractData(args) {
 
 module.exports = {
   config: {
-    name: "qrgen",
+    name: "qr",
     aliases: ["qrcode"],
     version: "1.0",
     author: "MOHAMMAD AKASH",
