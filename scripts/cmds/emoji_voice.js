@@ -5,22 +5,43 @@ const path = require("path");
 module.exports = {
   config: {
     name: "emoji_voice",
-    version: "2.0.2",
+    version: "2.1.0",
     author: "MOHAMMAD AKASH",
     countDown: 5,
     role: 0,
     shortDescription: "Sends a cute girl's voice when an emoji is used 😍",
-longDescription: "One emoji triggers multiple voices, sent randomly 😘",
+    longDescription: "One emoji triggers multiple voices, sent randomly 😘",
     category: "System"
   },
 
-  onStart: async function () {},
+  onStart: async function ({ message, event, threadsData, args }) {
+    if (!args[0]) 
+      return message.reply("❌ Use: emoji_voice on/off");
 
-  onChat: async function ({ event, message }) {
+    const input = args[0].toLowerCase();
+
+    if (input === "on") {
+      await threadsData.set(event.threadID, true, "emojiVoice");
+      return message.reply("✅ Emoji voice ON hoise 😍");
+    }
+
+    if (input === "off") {
+      await threadsData.set(event.threadID, false, "emojiVoice");
+      return message.reply("❌ Emoji voice OFF kora hoise 😴");
+    }
+
+    return message.reply("❌ Use: emoji_voice on/off");
+  },
+
+  onChat: async function ({ event, message, threadsData }) {
+
+    // 🔥 CHECK ON/OFF STATE
+    const isOn = await threadsData.get(event.threadID, "emojiVoice");
+    if (!isOn) return;
+
     const { body } = event;
     if (!body || body.length > 2) return;
 
-    // --- EMOJI WITH MULTIPLE RANDOM AUDIO LINKS ---
     const emojiAudioMap = {
       "🥱": ["https://files.catbox.moe/9pou40.mp3","https://files.catbox.moe/60cwcg.mp3"],
       "😁": ["https://files.catbox.moe/60cwcg.mp3"],
@@ -66,20 +87,17 @@ longDescription: "One emoji triggers multiple voices, sent randomly 😘",
       "😓": ["https://files.catbox.moe/zh3mdg.mp3"],
       "🤧": ["https://files.catbox.moe/zh3mdg.mp3"],
       "🙄": ["https://files.catbox.moe/vgzkeu.mp3"]
-
     };
 
     const emoji = body.trim();
     const audioList = emojiAudioMap[emoji];
     if (!audioList) return;
 
-    // --- RANDOM AUDIO SELECT ---
     const audioUrl = audioList[Math.floor(Math.random() * audioList.length)];
 
     const cacheDir = path.join(__dirname, "cache");
     fs.ensureDirSync(cacheDir);
 
-    // 🔥 UNIQUE FILE NAME EVERY TIME TO AVOID REPEAT
     const filePath = path.join(
       cacheDir,
       `${encodeURIComponent(emoji)}_${Date.now()}_${Math.floor(Math.random() * 1000)}.mp3`
@@ -89,7 +107,6 @@ longDescription: "One emoji triggers multiple voices, sent randomly 😘",
       const response = await axios.get(audioUrl, { responseType: "arraybuffer" });
       fs.writeFileSync(filePath, Buffer.from(response.data));
 
-      // 🔥 REPLY WITH FRESH STREAM
       await message.reply({ attachment: fs.createReadStream(filePath) });
 
       fs.unlink(filePath, (err) => {
