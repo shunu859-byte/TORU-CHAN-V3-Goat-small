@@ -10,7 +10,7 @@ module.exports = {
     role: 0,
     shortDescription: "Full Surah Arabic + Bangla with name",
     longDescription: "Send full Surah: name, number, Arabic first, then Bangla translation",
-    category: "islamic",
+    category: "Utility",
     guide: {
       en: "{pn}quran <surahNumber>"
     }
