@@ -2,44 +2,49 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
 
+let isEmojiVoiceEnabled = true;   // Default: On
+
 module.exports = {
   config: {
-    name: "emoji_voice",
-    version: "2.1.0",
+    name: "emojivoice",
+    version: "2.0.3",
     author: "MOHAMMAD AKASH",
     countDown: 5,
     role: 0,
     shortDescription: "Sends a cute girl's voice when an emoji is used 😍",
-    longDescription: "One emoji triggers multiple voices, sent randomly 😘",
+    longDescription: "One emoji triggers multiple voices, sent randomly 😘 | Use .emojivoice on/off to toggle",
     category: "System"
   },
 
-  onStart: async function ({ message, event, threadsData, args }) {
-    if (!args[0]) 
-      return message.reply("❌ Use: emoji_voice on/off");
-
-    const input = args[0].toLowerCase();
-
-    if (input === "on") {
-      await threadsData.set(event.threadID, true, "emojiVoice");
-      return message.reply("✅ Emoji voice ON hoise 😍");
-    }
-
-    if (input === "off") {
-      await threadsData.set(event.threadID, false, "emojiVoice");
-      return message.reply("❌ Emoji voice OFF kora hoise 😴");
-    }
-
-    return message.reply("❌ Use: emoji_voice on/off");
+  onStart: async function ({ message }) {
+    // Optional: Bot start এ একটা মেসেজ দিতে চাইলে
+    // message.reply("Emoji Voice system is ready! Default: ON");
   },
 
-  onChat: async function ({ event, message, threadsData }) {
-
-    // 🔥 CHECK ON/OFF STATE
-    const isOn = await threadsData.get(event.threadID, "emojiVoice");
-    if (!isOn) return;
-
+  onChat: async function ({ event, message, args }) {
     const { body } = event;
+
+    // === ON / OFF COMMAND HANDLING ===
+    if (body.toLowerCase().startsWith(".emojivoice")) {
+      const commandArgs = body.slice(11).trim().toLowerCase();
+
+      if (commandArgs === "on") {
+        isEmojiVoiceEnabled = true;
+        return message.reply("✅ Emoji Voice System চালু করা হয়েছে।\nএখন ইমোজি পাঠালে ভয়েস আসবে 😍");
+      }
+
+      if (commandArgs === "off") {
+        isEmojiVoiceEnabled = false;
+        return message.reply("❌ Emoji Voice System বন্ধ করা হয়েছে।\nইমোজি দিয়ে আর ভয়েস আসবে না।");
+      }
+
+      // Help message
+      return message.reply("📌 ব্যবহার:\n.emojivoice on  → চালু করতে\n.emojivoice off → বন্ধ করতে");
+    }
+
+    // === EMOJI VOICE PART (শুধু যদি On থাকে) ===
+    if (!isEmojiVoiceEnabled) return;
+
     if (!body || body.length > 2) return;
 
     const emojiAudioMap = {
@@ -100,7 +105,7 @@ module.exports = {
 
     const filePath = path.join(
       cacheDir,
-      `${encodeURIComponent(emoji)}_${Date.now()}_${Math.floor(Math.random() * 1000)}.mp3`
+      `\( {encodeURIComponent(emoji)}_ \){Date.now()}_${Math.floor(Math.random() * 1000)}.mp3`
     );
 
     try {
