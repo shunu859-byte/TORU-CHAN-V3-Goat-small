@@ -46,19 +46,30 @@ module.exports = {
       }
 
       // teach
-      if (args[0] === "teach") {
-        const parts = query.replace("teach ", "").split(" - ");
-        if (parts.length < 2)
-          return message.reply("Use: baby teach [Question] - [Reply]");
+if (args[0] === "teach") {
 
-        const [ask, ans] = parts;
+  await sendTyping();
 
-        await sendTyping();
+  const roastReplies = [
+    "Teach? 😏 তুই আগে নিজে শিখে আয় তারপর আমাকে শেখা 🐸",
+    "আমি AI baby, তোর কাছে tuition নিবো নাকি? 🤨",
+    "ওরে বাবা, teacher আইছে! কিন্তু brain kothay? 🤣",
+    "Teach করতে আইছোস? 🤡 আগে spelling শিখ bro",
+    "আমাকে শেখানোর দরকার নাই, তুই নিজেই confused 😵",
+    "Baby ke teach? 😂 Respect maintain kor",
+    "Tor kotha shune bot crash hoye jabe 😭",
+    "Teach korar age IQ check kor 😆",
+    "আমি already smart, তুই upgrade ho 🐸",
+    "এইটা school na, ja giya pora lekha kor 📚"
+  ];
 
-        const res = await axios.get(`${simsim}/teach?ask=${encodeURIComponent(ask)}&ans=${encodeURIComponent(ans)}&senderName=${encodeURIComponent(senderName)}`);
-        return message.reply(res.data.message || "Learned successfully!");
-      }
+  const reply = roastReplies[Math.floor(Math.random() * roastReplies.length)];
 
+  return message.reply(reply, (err, info) => {
+    if (!err)
+      global.GoatBot.onReply.set(info.messageID, { commandName: "baby", author: senderID });
+  });
+}
       // list
       if (args[0] === "list") {
 
