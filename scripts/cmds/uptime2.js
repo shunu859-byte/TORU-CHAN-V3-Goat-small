@@ -43,10 +43,10 @@ async function getDiskUsage() {
 
 module.exports = {
   config: {
-    name: "Uptime2",
+    name: "uptime",
     aliases: ["ut"],
     version: "1.0",
-    author: "saimx69x [modified by Apon]",
+    author: "Hridoy",
     countDown: 10,
     role: 0,
     category: "System",
