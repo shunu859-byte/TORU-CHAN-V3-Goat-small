@@ -11,7 +11,7 @@ module.exports = {
     role: 0,
     shortDescription: "Upscale image to 4K",
     longDescription: "Reply to an image to upscale it into 4K",
-    category: "ai",
+    category: "AI",
     guide: "{pn} (reply to image)"
   },
 

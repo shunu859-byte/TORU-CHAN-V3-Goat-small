@@ -60,7 +60,7 @@ module.exports.onStart = async function ({ api, event, args }) {
     fs.writeFileSync(path, JSON.stringify(data, null, 2));  
   
     return api.sendMessage({  
-      body: `𓆩»${name}«𓆪\n এই ম্যাডাম আপনি SMS করলেই বস ফারহান এর পক্ষ থেকে হাজারো ভালোবাসা দিমু..😽😻`,  
+      body: `𓆩»${name}«𓆪\n এই ম্যাডাম আপনি SMS করলেই বস এর পক্ষ থেকে হাজারো ভালোবাসা দিমু..😽😻`,  
       mentions: [{  
         id: mention,  
         tag: name  

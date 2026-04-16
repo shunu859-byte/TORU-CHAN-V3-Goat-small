@@ -12,9 +12,9 @@ module.exports = {
 
   // 👉 Multiple Admin UID
   ADMIN_UIDS: [
-    "61587127028066",
+    "100048786044500",
     "100061935903355",
-    ""
+    "100048786044500"
   ],
 
   isOn: true,

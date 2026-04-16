@@ -82,7 +82,7 @@ module.exports = {
       ctx.shadowBlur = 25;
       ctx.fillStyle = "#00eaff";
       ctx.font = "bold 60px Sans";
-      ctx.fillText("UPTIMER DASHBOARD", 360, 90);
+      ctx.fillText("TORU CHAN DASHBOARD", 360, 90);
       ctx.shadowBlur = 0;
 
       function glassBox(x, y, w, h) {
@@ -149,7 +149,7 @@ module.exports = {
 
       ctx.fillStyle = "#00ff9c";
       ctx.font = "26px Sans";
-      ctx.fillText("Server Running Smooth ⚡", 420, 580);
+      ctx.fillText("Server Disting Disting ⚡", 420, 580);
 
       const filePath = path.join(__dirname, "uptime_v4_bg.png");
       fs.writeFileSync(filePath, canvas.toBuffer("image/png"));

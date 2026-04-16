@@ -13,7 +13,7 @@ module.exports = {
                         en: "View the source code of any command (Admin)",
                         vi: "Xem mã nguồn của bất kỳ lệnh nào (Quản trị viên)"
                 },
-                category: "Admin",
+                category: "Image",
                 guide: {
                         bn: '   {pn} <কমান্ডের নাম>: সোর্স কোড দেখতে ব্যবহার করুন',
                         en: '   {pn} <command name>: Use to view source code',
