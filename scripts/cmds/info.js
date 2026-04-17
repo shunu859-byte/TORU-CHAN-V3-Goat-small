@@ -5,8 +5,8 @@ const path = require("path");
 const { utils } = global;
 
 const W = 490, H = 840;
-const AVATAR1 = "https://i.imgur.com/oEh5VEx.jpeg";
-const FALLBACK_AVATAR = "https://i.ibb.co/MC6bT5V/default-avatar.png";
+const AVATAR1 = "https://i.imgur.com/3RMAJwi.jpeg";
+const FALLBACK_AVATAR = "https://i.ibb.co/0pbyDWH4/1775849793961.jpg";
 
 function formatUptime(ms) {
   const totalSeconds = Math.floor(ms / 1000);
@@ -88,7 +88,7 @@ async function drawPage1(ctx) {
   ctx.fillStyle = "#ff99cc";
   ctx.shadowColor = "#ff33aa";
   ctx.shadowBlur = 25;
-  ctx.fillText("Supreme Shinobi 🥇⚜️", W / 2, 295);
+  ctx.fillText("HR ID OY", W / 2, 295);
 
   ctx.font = "italic 20px Arial";
   ctx.fillStyle = "#ff66cc";
