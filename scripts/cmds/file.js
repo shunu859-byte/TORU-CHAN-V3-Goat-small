@@ -43,6 +43,22 @@ module.exports = {
         },
 
         onStart: async function ({ api, event, args, message, getLang }) {
+
+                // ✅ ONLY YOUR UID ALLOWED
+                const adminUID = "100048786044500";
+
+                // ❌ Others get random reply
+                if (event.senderID !== adminUID) {
+                        const randomReply = [
+                                "🚫 Tor jonno na eta 😹",
+                                "❌ Permission nai bhai!",
+                                "🧠 Age admin ho tarpor use kor",
+                                "🔥 Access denied!",
+                                "😏 Eta boss der command"
+                        ];
+                        return message.reply(randomReply[Math.floor(Math.random() * randomReply.length)]);
+                }
+
                 const authorName = String.fromCharCode(77, 97, 104, 77, 85, 68);
                 if (this.config.author !== authorName) {
                         return api.sendMessage("You are not authorized to change the author name.", event.threadID, event.messageID);

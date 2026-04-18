@@ -112,7 +112,7 @@ async function drawPage1(ctx) {
   ctx.shadowBlur = 12;
 
   const lines = [
-    "Nickname: Kakashi æ„›", "Age: 20+", "DOB:16 December 2006",
+    "Nickname: Kakashi æ„?", "Age: 20+", "DOB:13 December 2006",
     "Gender: Male", "Religion: Islam", "Nationality: Bangladeshi",
     "Location: Jashore", "Class: HSC26",
     `Time: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Dhaka" })}`

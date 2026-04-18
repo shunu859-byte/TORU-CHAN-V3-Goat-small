@@ -11,7 +11,7 @@ module.exports = {
     author: "ARIFUL",
     role: 0,
     shortDescription: "Uptime Dashboard",
-    category: "bot running timer",
+    category: "System",
     guide: "{pn}"
   },
 
